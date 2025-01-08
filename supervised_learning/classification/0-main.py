@@ -1,18 +1,39 @@
 #!/usr/bin/env python3
+"""
+Test file for Neuron class in 0-neuron.py
+"""
 
 import numpy as np
-
 Neuron = __import__('0-neuron').Neuron
 
-lib_train = np.load('../data/Binary_Train.npz')
-X_3D, Y = lib_train['X'], lib_train['Y']
-X = X_3D.reshape((X_3D.shape[0], -1)).T
+def main():
+    try:
+        print("Test 1: Invalid nx (not an integer)")
+        neuron = Neuron("10")  # Should raise a TypeError
+    except Exception as e:
+        print(e)
 
-np.random.seed(0)
-neuron = Neuron(X.shape[0])
-print(neuron.W)
-print(neuron.W.shape)
-print(neuron.b)
-print(neuron.A)
-neuron.A = 10
-print(neuron.A)
+    try:
+        print("\nTest 2: Invalid nx (negative integer)")
+        neuron = Neuron(-10)  # Should raise a ValueError
+    except Exception as e:
+        print(e)
+
+    try:
+        print("\nTest 3: Invalid nx (zero)")
+        neuron = Neuron(0)  # Should raise a ValueError
+    except Exception as e:
+        print(e)
+
+    try:
+        print("\nTest 4: Valid nx (positive integer)")
+        nx = 10
+        neuron = Neuron(nx)
+        print("Weights (W):", neuron.W)
+        print("Bias (b):", neuron.b)
+        print("Activation output (A):", neuron.A)
+    except Exception as e:
+        print(e)
+
+if __name__ == "__main__":
+    main()
