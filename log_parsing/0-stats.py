@@ -1,50 +1,53 @@
 #!/usr/bin/python3
-"""
-Task - Script that reads stdin liny by line and computes metrics
-"""
-
 import sys
 
-if __name__ == "__main__":
-    # Initialize status code dictionary and counters
-    st_code = {
-            "200": 0,
-            "301": 0,
-            "400": 0,
-            "401": 0,
-            "403": 0,
-            "404": 0,
-            "405": 0,
-            "500": 0
-            }
-    count = 1
-    file_size = 0
+def parse_log():
+    total_size = 0
+    status_codes = {
+        200: 0,
+        301: 0,
+        400: 0,
+        401: 0,
+        403: 0,
+        404: 0,
+        405: 0,
+        500: 0
+    }
 
-    def parse_line(line):
-        """Read, parse and grab data"""
-        try:
-            parsed_line = line.split()
-            status_code = parsed_line[-2]
-            if status_code in st_code.keys():
-                st_code[status_code] += 1
-            return int(parsed_line[-1])
-        except Exception:
-            return 0
-
-    def print_stats():
-        """Print stats in ascending order"""
-        print("File size: {}".format(file_size))
-        for key in sorted(st_code.keys()):
-            if st_code[key]:
-                print("{}: {}".format(key, st_code[key]))
-
+    count = 0
     try:
         for line in sys.stdin:
-            file_size += parse_line(line)
-            if count % 10 == 0:
-                print_stats()
             count += 1
+            line = line.strip()
+
+            # Skip lines that don't match the expected format
+            try:
+                parts = line.split(' ')
+                ip = parts[0]
+                date = parts[1][1:-1]
+                method = parts[3][1:]
+                status_code = int(parts[5])
+                file_size = int(parts[6])
+
+                if status_code in status_codes:
+                    status_codes[status_code] += 1
+                total_size += file_size
+
+            except (IndexError, ValueError):
+                continue
+
+            if count % 10 == 0:
+                print_stats(total_size, status_codes)
+
     except KeyboardInterrupt:
-        print_stats()
+        print_stats(total_size, status_codes)
         raise
-    print_stats()
+
+def print_stats(total_size, status_codes):
+    print(f"File size: {total_size}")
+    for code in sorted(status_codes):
+        if status_codes[code] > 0:
+            print(f"{code}: {status_codes[code]}")
+
+if __name__ == "__main__":
+    parse_log()
