@@ -30,8 +30,10 @@ def parse_log():
 
             # Skip lines that don't match the expected format
             try:
+                # Adjust for the timestamp with square brackets
                 parts = line.split(' ')
                 ip = parts[0]
+                # Date format with brackets
                 date = parts[1][1:-1]
                 method = parts[3][1:]
                 status_code = int(parts[5])
