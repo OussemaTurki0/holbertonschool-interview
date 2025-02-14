@@ -25,6 +25,9 @@ def parse_log():
             count += 1
             line = line.strip()
 
+            # Print line for debugging purposes
+            print(f"Processing line: {line}")
+
             # Skip lines that don't match the expected format
             try:
                 parts = line.split(' ')
@@ -39,6 +42,7 @@ def parse_log():
                 total_size += file_size
 
             except (IndexError, ValueError):
+                print(f"Skipping invalid line: {line}")
                 continue
 
             if count % 10 == 0:
