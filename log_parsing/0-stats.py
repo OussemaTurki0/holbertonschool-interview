@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+"""
+Log parsing script that reads log entries from stdin, computes the total file size,
+and tracks the occurrence of certain HTTP status codes. 
+After every 10 lines, or a keyboard interrupt, it prints the current statistics.
+"""
 import sys
 
 def parse_log():
