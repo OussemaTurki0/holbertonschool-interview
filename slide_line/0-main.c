@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Usage: %s <L/R> <num1> [num2...]\n", argv[0]);
         return (EXIT_FAILURE);
     }
-
+s
     /* Convert input arguments to an integer array */
     length = argc - 2;
     if (length > MAX_SIZE)
