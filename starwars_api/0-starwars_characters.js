@@ -1,34 +1,42 @@
-// 0-starwars_characters.js
+#!/usr/bin/node
 
 const request = require('request');
 
-function getCharacters(movieId, callback) {
-  const url = `https://swapi.dev/api/films/${movieId}/`;
+// Get the Movie ID from the first positional argument
+const movieId = process.argv[2];
 
-  request(url, async function (error, response, body) {
-    if (error) return callback(error);
+// Define the URL for the Star Wars API for the specific movie
+const url = `https://swapi-api.hbtn.io/api/films/${movieId}/`;
 
-    try {
-      const film = JSON.parse(body);
-      const characters = film.characters;
-      const names = [];
+request(url, function (error, response, body) {
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-      for (const charUrl of characters) {
-        await new Promise((resolve, reject) => {
-          request(charUrl, (err, res, charBody) => {
-            if (err) return reject(err);
-            const charData = JSON.parse(charBody);
-            names.push(charData.name);
-            resolve();
-          });
-        });
-      }
+  const filmData = JSON.parse(body);
+  const characters = filmData.characters;
 
-      callback(null, names);
-    } catch (err) {
-      callback(err);
-    }
+  // Map each character URL to a promise
+  const characterPromises = characters.map(characterUrl => {
+    return new Promise((resolve, reject) => {
+      request(characterUrl, function (error, response, body) {
+        if (error) {
+          reject(error);
+        } else {
+          const characterData = JSON.parse(body);
+          resolve(characterData.name);
+        }
+      });
+    });
   });
-}
 
-module.exports = getCharacters;
+  // Wait for all promises to resolve
+  Promise.all(characterPromises)
+    .then(characterNames => {
+      characterNames.forEach(name => console.log(name));
+    })
+    .catch(error => {
+      console.error(error);
+    });
+});
