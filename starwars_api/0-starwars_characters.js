@@ -1,32 +1,28 @@
 #!/usr/bin/node
 
 const request = require('request');
-const movieId = process.argv[2]; // Movie ID passed as the first argument
+
+const movieId = process.argv[2];
+if (!movieId) {
+  console.error('Usage: ./0-starwars_characters.js <Movie_ID>');
+  process.exit(1);
+}
 
 const url = `https://swapi.dev/api/films/${movieId}/`;
 
-request(url, function (error, response, body) {
-  if (error) {
-    console.log('Error:', error);
-    return;
-  }
-  
-  if (response.statusCode === 200) {
-    const filmData = JSON.parse(body);
-    const characterUrls = filmData.characters;
+request(url, async function (error, response, body) {
+  if (error) return console.error(error);
 
-    // Loop through the character URLs and fetch each character's details
-    characterUrls.forEach((characterUrl) => {
-      request(characterUrl, function (err, res, charBody) {
-        if (err) {
-          console.log('Error:', err);
-          return;
-        }
-        
-        if (res.statusCode === 200) {
-          const characterData = JSON.parse(charBody);
-          console.log(characterData.name);
-        }
+  const film = JSON.parse(body);
+  const characters = film.characters;
+
+  for (const charUrl of characters) {
+    await new Promise((resolve, reject) => {
+      request(charUrl, (err, res, charBody) => {
+        if (err) return reject(err);
+        const charData = JSON.parse(charBody);
+        console.log(charData.name);
+        resolve();
       });
     });
   }
