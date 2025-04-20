@@ -1,29 +1,34 @@
-#!/usr/bin/node
+// 0-starwars_characters.js
 
 const request = require('request');
 
-const movieId = process.argv[2];
-if (!movieId) {
-  console.error('Usage: ./0-starwars_characters.js <Movie_ID>');
-  process.exit(1);
+function getCharacters(movieId, callback) {
+  const url = `https://swapi.dev/api/films/${movieId}/`;
+
+  request(url, async function (error, response, body) {
+    if (error) return callback(error);
+
+    try {
+      const film = JSON.parse(body);
+      const characters = film.characters;
+      const names = [];
+
+      for (const charUrl of characters) {
+        await new Promise((resolve, reject) => {
+          request(charUrl, (err, res, charBody) => {
+            if (err) return reject(err);
+            const charData = JSON.parse(charBody);
+            names.push(charData.name);
+            resolve();
+          });
+        });
+      }
+
+      callback(null, names);
+    } catch (err) {
+      callback(err);
+    }
+  });
 }
 
-const url = `https://swapi.dev/api/films/${movieId}/`;
-
-request(url, async function (error, response, body) {
-  if (error) return console.error(error);
-
-  const film = JSON.parse(body);
-  const characters = film.characters;
-
-  for (const charUrl of characters) {
-    await new Promise((resolve, reject) => {
-      request(charUrl, (err, res, charBody) => {
-        if (err) return reject(err);
-        const charData = JSON.parse(charBody);
-        console.log(charData.name);
-        resolve();
-      });
-    });
-  }
-});
+module.exports = getCharacters;
