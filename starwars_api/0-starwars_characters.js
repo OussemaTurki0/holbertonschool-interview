@@ -1,33 +1,42 @@
 #!/usr/bin/node
 
 const request = require('request');
-const movieId = process.argv[2]; // Movie ID passed as the first argument
 
-const url = `https://swapi.dev/api/films/${movieId}/`;
+// Get the Movie ID from the first positional argument
+const movieId = process.argv[2];
+
+// Define the URL for the Star Wars API for the specific movie
+const url = `https://swapi-api.hbtn.io/api/films/${movieId}/`;
 
 request(url, function (error, response, body) {
   if (error) {
-    console.log('Error:', error);
+    console.error(error);
     return;
   }
-  
-  if (response.statusCode === 200) {
-    const filmData = JSON.parse(body);
-    const characterUrls = filmData.characters;
 
-    // Loop through the character URLs and fetch each character's details
-    characterUrls.forEach((characterUrl) => {
-      request(characterUrl, function (err, res, charBody) {
-        if (err) {
-          console.log('Error:', err);
-          return;
-        }
-        
-        if (res.statusCode === 200) {
-          const characterData = JSON.parse(charBody);
-          console.log(characterData.name);
+  const filmData = JSON.parse(body);
+  const characters = filmData.characters;
+
+  // Map each character URL to a promise
+  const characterPromises = characters.map(characterUrl => {
+    return new Promise((resolve, reject) => {
+      request(characterUrl, function (error, response, body) {
+        if (error) {
+          reject(error);
+        } else {
+          const characterData = JSON.parse(body);
+          resolve(characterData.name);
         }
       });
     });
-  }
+  });
+
+  // Wait for all promises to resolve
+  Promise.all(characterPromises)
+    .then(characterNames => {
+      characterNames.forEach(name => console.log(name));
+    })
+    .catch(error => {
+      console.error(error);
+    });
 });
