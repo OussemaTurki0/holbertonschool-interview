@@ -1,66 +1,60 @@
 #include "sort.h"
 
 /**
- * sift_down - Helper that ensures the subtree rooted at start is a max‐heap
- * @array: The array to adjust
- * @start: Index of the root of the subtree
- * @end:   Index of the last element in the heap
- * @size:  Total size of the array (for printing)
+ * heapify - Ensures the max-heap property for a subtree
+ * @array: The array to be sorted
+ * @size: Total size of the array
+ * @i: The index of the current node
+ * @n: The size of the heap
  */
-static void sift_down(int *array, size_t start, size_t end, size_t size)
+void heapify(int *array, size_t size, int i, size_t n)
 {
-    size_t root = start;
+	int largest = i;
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
 
-    while (root * 2 + 1 <= end)
-    {
-        size_t child = root * 2 + 1;
-        size_t swap_idx = root;
+	if (left < (int)n && array[left] > array[largest])
+		largest = left;
 
-        if (array[swap_idx] < array[child])
-            swap_idx = child;
-        if (child + 1 <= end && array[swap_idx] < array[child + 1])
-            swap_idx = child + 1;
+	if (right < (int)n && array[right] > array[largest])
+		largest = right;
 
-        if (swap_idx == root)
-            return;
+	if (largest != i)
+	{
+		int temp = array[i];
 
-        /* swap root and child */
-        {
-            int tmp = array[root];
-            array[root] = array[swap_idx];
-            array[swap_idx] = tmp;
-        }
-        print_array(array, size);
-        root = swap_idx;
-    }
+		array[i] = array[largest];
+		array[largest] = temp;
+		print_array(array, size);  /* Print after each swap */
+
+		heapify(array, size, largest, n);
+	}
+
 }
 
 /**
- * heap_sort - Sorts an array of integers in ascending order
- *               using the sift‐down Heap sort algorithm.
- * @array: The array to sort
- * @size:  Number of elements in @array
+ * heap_sort - Sorts an array of integers using heap sort
+ * @array: The array to be sorted
+ * @size: Size of the array
  */
 void heap_sort(int *array, size_t size)
 {
-    if (!array || size < 2)
-        return;
+	if (size < 2)
+		return;
 
-    /* 1) Build the max-heap */
-    for (size_t i = (size - 2) / 2 + 1; i > 0; i--)
-        sift_down(array, i - 1, size - 1, size);
+	/* Build the max heap */
+	for (int i = size / 2 - 1; i >= 0; i--)
+		heapify(array, size, i, size);
 
-    /* 2) Extract elements from heap one by one */
-    for (size_t end = size - 1; end > 0; end--)
-    {
-        /* swap max (array[0]) with array[end] */
-        {
-            int tmp = array[0];
-            array[0] = array[end];
-            array[end] = tmp;
-        }
-        print_array(array, size);
-        /* restore heap property on the reduced heap */
-        sift_down(array, 0, end - 1, size);
-    }
+	/* Extract elements from the heap one by one */
+	for (int i = size - 1; i > 0; i--)
+	{
+		int temp = array[0];
+
+		array[0] = array[i];
+		array[i] = temp;
+		print_array(array, size);  /* Print after each swap */
+
+		heapify(array, size, 0, i);
+	}
 }
