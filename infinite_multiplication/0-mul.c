@@ -1,107 +1,108 @@
 #include "holberton.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 /**
- * is_digit - checks if a string contains only digits
+ * _isdigit - checks if a string consists of digits
  * @s: the string to check
- * Return: 1 if only digits, 0 otherwise
+ *
+ * Return: 1 if all characters are digits, 0 otherwise
  */
-int is_digit(char *s)
+int _isdigit(char *s)
 {
-    int i = 0;
+	int i = 0;
 
-    while (s[i])
-    {
-        if (s[i] < '0' || s[i] > '9')
-            return (0);
-        i++;
-    }
-    return (1);
+	while (s[i])
+	{
+		if (s[i] < '0' || s[i] > '9')
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
 /**
  * _strlen - returns the length of a string
- * @s: the string
- * Return: length
+ * @s: the string whose length to return
+ *
+ * Return: the length of the string
  */
 int _strlen(char *s)
 {
-    int len = 0;
+	int len = 0;
 
-    while (s[len])
-        len++;
-    return (len);
+	while (s[len])
+		len++;
+	return (len);
 }
 
 /**
- * errors - prints Error and exits with status 98
+ * print_error - prints Error, frees memory (if applicable), and exits with status 98
+ * @result: pointer to memory that needs toe be freed
  */
-void errors(void)
+void print_error(int *result)
 {
-    char *err = "Error\n";
-    int i = 0;
-
-    while (err[i])
-    {
-        _putchar(err[i]);
-        i++;
-    }
-    exit(98);
+	if (result)
+		free(result); /* Free the result array if it was allocated */
+	char *error = "Error\n";
+	while (*error)
+		_putchar(*error++);
+	exit(98);
 }
 
 /**
  * main - multiplies two positive numbers
- * @argc: number of arguments
- * @argv: argument vector
- * Return: 0 on success
+ * @argc: the number of arguments
+ * @argv: the argument vector
+ *
+ * Return: 0 if successful, 98 if failure
  */
 int main(int argc, char *argv[])
 {
-    char *num1, *num2;
-    int len1, len2, len_res, i, j, carry, n1, n2, *res;
-    int start = 0;
+	char *num1, *num2;
+	int len1, len2, len, i, j, carry, n1, n2, *result = NULL;
 
-    if (argc != 3 || !is_digit(argv[1]) || !is_digit(argv[2]))
-        errors();
+	if (argc != 3 || !_isdigit(argv[1]) || !_isdigit(argv[2]))
+		print_error(result);
 
-    num1 = argv[1];
-    num2 = argv[2];
-    len1 = _strlen(num1);
-    len2 = _strlen(num2);
-    len_res = len1 + len2;
-    res = malloc(sizeof(int) * (len_res));
-    if (!res)
-        return (1);
+	num1 = argv[1];
+	num2 = argv[2];
+	len1 = _strlen(num1);
+	len2 = _strlen(num2);
+	len = len1 + len2;
 
-    for (i = 0; i < len_res; i++)
-        res[i] = 0;
+	result = malloc(sizeof(int) * len);
+	if (!result)
+		print_error(result);
+	
+	for (i = 0; i < len; i++)
+		result[i] = 0;
 
-    for (i = len1 - 1; i >= 0; i--)
-    {
-        n1 = num1[i] - '0';
-        carry = 0;
+	for (i = len1 - 1; i >= 0; i--)
+	{
+		n1 = num1[i] - '0';
+		carry = 0;
+		for (j = len2 - 1; j >= 0; j--)
+		{
+			n2 = num2[j] - '0';
+			carry += result[i + j + 1] + n1 * n2;
+			result[i + j + 1] = carry % 10;
+			carry /= 10;
+		}
+		result[i + j + 1] += carry;
+	}
 
-        for (j = len2 - 1; j >= 0; j--)
-        {
-            n2 = num2[j] - '0';
-            carry += res[i + j + 1] + (n1 * n2);
-            res[i + j + 1] = carry % 10;
-            carry /= 10;
-        }
-        res[i + j + 1] += carry;
-    }
+	i = 0;
+	while (i < len && result[i] == 0)
+		i++;
 
-    while (start < len_res && res[start] == 0)
-        start++;
+	if (i == len)
+		_putchar('0');
+	
+	while (i < len)
+		_putchar(result[i++] + '0');
+	_putchar('\n');
 
-    if (start == len_res)
-        _putchar('0');
-    else
-    {
-        for (; start < len_res; start++)
-            _putchar(res[start] + '0');
-    }
-    _putchar('\n');
-    free(res);
-    return (0);
+	free(result);
+	return (0);
 }
