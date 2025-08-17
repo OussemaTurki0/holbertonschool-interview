@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-
 #include "substring.h"
 
 int main(int ac, char const **av)
@@ -33,5 +32,6 @@ int main(int ac, char const **av)
     }
     printf("]\n");
 
+    free(indices);
     return (EXIT_SUCCESS);
 }
